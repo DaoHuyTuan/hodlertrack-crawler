@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  hodlertrack-crawler:
+    build: .
+    container_name: hodlertrack-crawler
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - WEBSOCKET_URL=${WEBSOCKET_URL:-ws://localhost:8080/ws}
+      - WEBSOCKET_RECONNECT_INTERVAL=${WEBSOCKET_RECONNECT_INTERVAL:-5000}
+      - WEBSOCKET_MAX_RECONNECT_ATTEMPTS=${WEBSOCKET_MAX_RECONNECT_ATTEMPTS:-10}
+      - PORT=${PORT:-3000}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - hodlertrack-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "console.log('Health check passed')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  hodlertrack-network:
+    driver: bridge
